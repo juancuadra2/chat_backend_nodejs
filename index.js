@@ -13,6 +13,8 @@ app.use(express.json());
 
 //Mis rutas
 app.use('/api/login', require('./routes/auth'));
+app.use('/api/usuarios', require('./routes/usuarios_routes'));
+app.use('/api/mensajes', require('./routes/mensajes_routes'));
 
 
 //Node server socket

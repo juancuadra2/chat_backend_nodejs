@@ -1,8 +1,32 @@
+const { estadoUsuario, guardarMensaje } = require('../controllers/socket');
+const { comprabarJWT } = require('../helpers/jwt');
 const {io} = require('../index');
 
 io.on('connection', client => {
+    //Cliente conectado
     console.log('Cliente conectado');
+
+    //Validar token de cliente
+    const [ valido, uid ] = comprabarJWT(client.handshake.headers['x-token']);
+    if (!valido) return client.disconnect();
+
+    //Cliente autenticado
+    estadoUsuario(uid, true);
+
+    //unir a sala
+    client.join(uid);
+
+    client.on('mensaje-personal', async (data) =>{
+        console.log(data);
+        await guardarMensaje(data);
+        io.to(data.to).emit('mensaje-personal', data);
+    });
+
+
+
+    //Cliente desconectado
     client.on('disconnect', () => { 
+        estadoUsuario(uid, false);
         console.log('Cliente desconectado')
     });
 
